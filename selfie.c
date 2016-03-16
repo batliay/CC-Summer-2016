@@ -625,6 +625,10 @@ int OP_SW      = 43;
 int *OPCODES; // array of strings representing MIPS opcodes
 
 int FCT_NOP     = 0;
+int FCT_SLL     = 0;
+int FCT_SRL     = 2;
+int FCT_SLLV    = 4;
+int FCT_SRLV    = 6;
 int FCT_JR      = 8;
 int FCT_SYSCALL = 12;
 int FCT_MFHI    = 16;
@@ -673,6 +677,10 @@ void initDecoder() {
     *(FUNCTIONS + FCT_ADDU)    = (int) "addu";
     *(FUNCTIONS + FCT_SUBU)    = (int) "subu";
     *(FUNCTIONS + FCT_SLT)     = (int) "slt";
+    *(FUNCTIONS + FCT_SLL)     = (int) "sll";
+    *(FUNCTIONS + FCT_SRL)     = (int) "srl";
+    *(FUNCTIONS + FCT_SLLV)    = (int) "sllv";
+    *(FUNCTIONS + FCT_SRLV)    = (int) "srlv";
 }
 
 // -----------------------------------------------------------------
@@ -887,6 +895,10 @@ void fct_multu();
 void fct_divu();
 void fct_addu();
 void fct_subu();
+void fct_sll();
+void fct_srl();
+void fct_sllv();
+void fct_srlv();
 void op_lw();
 void fct_slt();
 void op_sw();
@@ -5613,6 +5625,166 @@ void op_sw() {
     }
 }
 
+void fct_sll() {
+     if (debug) {
+         printOpcode(opcode);
+         print((int*) " ");
+         printRegister(rd);
+         print((int*) ",");
+         printRegister(rt);
+         print((int*) ",");
+         print(itoa(signExtend(immediate), string_buffer, 10, 0, 0));
+         
+         if (interpret) {
+             print((int*) ": ");
+             printRegister(rd);
+             print((int*) "=");
+             print(itoa(*(registers+rd), string_buffer, 10, 0, 0));
+             print((int*) ",");
+             printRegister(rt);
+             print((int*) "=");
+             print(itoa(*(registers+rt), string_buffer, 10, 0, 0));
+         }
+     }
+     
+     if (interpret) {
+         *(registers+rd) = leftShift(registers+rt, signExtend(immediate));
+         pc = pc + WORDSIZE;
+     }
+     
+     if (debug) {
+         if (interpret) {
+             print((int*) " -> ");
+             printRegister(rd);
+             print((int*) "=");
+             print(itoa(*(registers+rd), string_buffer, 10, 0, 0));
+         }
+         println();
+     }
+ }
+ 
+void fct_srl() {
+     if (debug) {
+         printOpcode(opcode);
+         print((int*) " ");
+         printRegister(rd);
+         print((int*) ",");
+         printRegister(rt);
+         print((int*) ",");
+         print(itoa(signExtend(immediate), string_buffer, 10, 0, 0));
+         
+         if (interpret) {
+             print((int*) ": ");
+             printRegister(rd);
+             print((int*) "=");
+             print(itoa(*(registers+rd), string_buffer, 10, 0, 0));
+             print((int*) ",");
+             printRegister(rt);
+             print((int*) "=");
+             print(itoa(*(registers+rt), string_buffer, 10, 0, 0));
+         }
+     }
+    
+     if (interpret) {
+         *(registers+rd) = rightShift(registers+rt, signExtend(immediate));
+         pc = pc + WORDSIZE;
+     }
+     
+     if (debug) {
+         if (interpret) {
+             print((int*) " -> ");
+             printRegister(rd);
+             print((int*) "=");
+             print(itoa(*(registers+rd), string_buffer, 10, 0, 0));
+         }
+         println();
+     }
+ }
+ 
+void fct_sllv() {
+     if(debug) {
+         printFunction(function);
+         print((int*) " ");
+         printRegister(rd);
+         print((int*) ",");
+         printRegister(rt);
+         print((int*) ",");
+         printRegister(rs);
+         
+         if(interpret) {
+             print((int*) ": ");
+             printRegister(rd);
+             print((int*) "=");
+             print(itoa(*(registers+rd), string_buffer, 10, 0, 0));
+             print((int*) ",");
+             printRegister(rt);
+             print((int*) "=");
+             print(itoa(*(registers+rt), string_buffer, 10, 0, 0));
+             print((int*) ",");
+             printRegister(rs);
+             print((int*) "=");
+             print(itoa(*(registers+rs), string_buffer, 10, 0, 0));
+         }
+     }
+    
+     if(interpret) {
+         *(registers+rd) = leftShift(registers+rt, registers+rs);
+         pc = pc+ WORDSIZE;
+     }
+     
+     if (debug) {
+         if (interpret) {
+             print((int*) " -> ");
+             printRegister(rd);
+             print((int*) "=");
+             print(itoa(*(registers+rd), string_buffer, 10, 0, 0));
+         }
+         println();
+     }
+}
+ 
+void fct_srlv() {
+    if(debug) {
+         printFunction(function);
+         print((int*) " ");
+         printRegister(rd);
+         print((int*) ",");
+         printRegister(rt);
+         print((int*) ",");
+         printRegister(rs);
+         
+         if(interpret) {
+             print((int*) ": ");
+             printRegister(rd);
+             print((int*) "=");
+             print(itoa(*(registers+rd), string_buffer, 10, 0, 0));
+             print((int*) ",");
+             printRegister(rt);
+             print((int*) "=");
+             print(itoa(*(registers+rt), string_buffer, 10, 0, 0));
+             print((int*) ",");
+             printRegister(rs);
+             print((int*) "=");
+             print(itoa(*(registers+rs), string_buffer, 10, 0, 0));
+         }
+    }
+    
+    if(interpret) {
+         *(registers+rd) = rightShift(registers+rt, registers+rs);
+         pc = pc+ WORDSIZE;
+    }
+   
+    if (debug) {
+         if (interpret) {
+             print((int*) " -> ");
+             printRegister(rd);
+             print((int*) "=");
+             print(itoa(*(registers+rd), string_buffer, 10, 0, 0));
+         }
+         println();
+    }
+ }
+ 
 // -----------------------------------------------------------------
 // -------------------------- INTERPRETER --------------------------
 // -----------------------------------------------------------------
